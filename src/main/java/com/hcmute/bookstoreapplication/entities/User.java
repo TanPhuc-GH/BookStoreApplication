@@ -1,7 +1,9 @@
 package com.hcmute.bookstoreapplication.entities;
 
 import com.hcmute.bookstoreapplication.utils.EnumRole;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "user")
 public class User implements Serializable {
@@ -45,6 +49,7 @@ public class User implements Serializable {
     @Column(name = "verification_code")
     private String verificationCode;
 
+    @Enumerated(EnumType.STRING)
     private EnumRole  roles;
 
     @Column(name = "is_active")
