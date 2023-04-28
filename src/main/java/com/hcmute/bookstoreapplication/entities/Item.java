@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "item_id", nullable = false)
     private Integer id;
 
     private String itemName;
@@ -25,4 +25,8 @@ public class Item {
     @JoinColumn(name = "product_id")
     @MapsId
     private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "order_detail_id")
+    private OrderDetail orderDetail;
 }
