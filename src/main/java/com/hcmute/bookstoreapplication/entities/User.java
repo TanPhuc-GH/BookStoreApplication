@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,17 +27,19 @@ public class User implements Serializable {
     private Integer id;
 
     @Column(name = "first_name")
-    @NotBlank(message = "")
+    @NotBlank
     private String firstName;
 
     @Column(name = "last_name")
-    @NotBlank(message = "")
+    @NotBlank
     private String lastName;
 
-    @NotBlank(message = "")
+    @NotBlank
+    @NotNull
+    @Email(message = "Email is not valid")
     private String email;
 
-    @NotBlank(message = "")
+    @NotBlank
     private String password;
 
     @Column(name = "phone_number")
@@ -43,7 +47,7 @@ public class User implements Serializable {
     private String phoneNumber;
 
     @Column(name="default_address")
-    @NotBlank(message = "")
+    @NotBlank
     private String defaultAddress;
 
     @Column(name = "verification_code")
