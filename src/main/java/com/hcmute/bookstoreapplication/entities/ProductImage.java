@@ -22,8 +22,6 @@ public class ProductImage implements Serializable {
 
     private String path;
 
-    private String publicId;
-
     private Boolean thumbnail;
 
     @ManyToOne
