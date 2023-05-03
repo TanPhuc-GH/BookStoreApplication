@@ -32,7 +32,11 @@ public class ProductController {
         return new ResponseEntity<>(productDetailService.getProductDetail(id),HttpStatus.OK);
     }
     @GetMapping("/search")
-    public ResponseEntity<List<ProductDTO>> getSearchProduct(@RequestParam("query") String query){
+    public ResponseEntity<List<ProductDTO>> getSearchProduct(@RequestParam("keyword") String query){
         return new ResponseEntity<>(productService.searchProducts(query),HttpStatus.OK);
+    }
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProductDTO>> getFilterProduct(@RequestParam("price") String price, @RequestParam("pulisher") String nxb){
+        return new ResponseEntity<>(productService.filterProducts(price,nxb),HttpStatus.OK);
     }
 }
