@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface ProductService {
     List<ProductDTO> getAllProduct();
+    List<ProductDTO> searchProducts(String query);
 }

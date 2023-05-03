@@ -2,14 +2,12 @@ package com.hcmute.bookstoreapplication.controllers;
 
 import com.hcmute.bookstoreapplication.dtos.ProductDTO;
 import com.hcmute.bookstoreapplication.dtos.ProductDetailDTO;
+import com.hcmute.bookstoreapplication.entities.Product;
 import com.hcmute.bookstoreapplication.services.product.ProductService;
 import com.hcmute.bookstoreapplication.services.product_detail.ProductDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,5 +30,9 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductDetailDTO> getDetailProduct(@PathVariable Integer id){
         return new ResponseEntity<>(productDetailService.getProductDetail(id),HttpStatus.OK);
+    }
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> getSearchProduct(@RequestParam("query") String query){
+        return new ResponseEntity<>(productService.searchProducts(query),HttpStatus.OK);
     }
 }

@@ -3,6 +3,7 @@ package com.hcmute.bookstoreapplication.services.product;
 import com.hcmute.bookstoreapplication.dtos.ProductDTO;
 import com.hcmute.bookstoreapplication.entities.Product;
 import com.hcmute.bookstoreapplication.repositories.ProductRepository;
+import com.mysql.cj.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,5 +25,11 @@ public class ProductServiceImpl implements ProductService{
             productDTOS.add(productDTO);
         }
         return productDTOS;
+    }
+
+    @Override
+    public List<ProductDTO> searchProducts(String query) {
+        List<ProductDTO> products = productRepository.searchProducts(query);
+        return products;
     }
 }
