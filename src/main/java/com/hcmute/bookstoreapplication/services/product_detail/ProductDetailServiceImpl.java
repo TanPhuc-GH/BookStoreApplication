@@ -2,6 +2,7 @@ package com.hcmute.bookstoreapplication.services.product_detail;
 
 import com.hcmute.bookstoreapplication.dtos.ProductDetailDTO;
 import com.hcmute.bookstoreapplication.entities.Product;
+import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
 import com.hcmute.bookstoreapplication.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class ProductDetailServiceImpl implements ProductDetailService{
     @Override
     public ProductDetailDTO getProductDetail(Integer id) {
         Optional<Product> product = productRepository.findById(id);
+        if(!product.isPresent()){
+            throw new RuntimeException("Product not found with id: "+id);
+        }
         ProductDetailDTO productDetailDTO = new ProductDetailDTO(product.get());
         return productDetailDTO;
     }
