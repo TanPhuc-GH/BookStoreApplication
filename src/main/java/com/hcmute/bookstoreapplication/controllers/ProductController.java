@@ -23,6 +23,7 @@ public class ProductController {
         this.productDetailService = productDetailService;
     }
 
+    @CrossOrigin(origins = "http://192.168.2.114:8080/api/product/")
     @GetMapping("/all")
     public ResponseEntity<List<ProductDTO>> getAllProduct(){
         return new ResponseEntity<>(productService.getAllProduct(), HttpStatus.OK);
@@ -36,7 +37,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.searchProducts(query),HttpStatus.OK);
     }
     @GetMapping("/filter")
-    public ResponseEntity<List<ProductDTO>> getFilterProduct(@RequestParam("price") String price, @RequestParam("pulisher") String nxb){
+    public ResponseEntity<List<ProductDTO>> getFilterProduct(@RequestParam("price") String price, @RequestParam("publisher") String nxb){
         return new ResponseEntity<>(productService.filterProducts(price,nxb),HttpStatus.OK);
     }
 }
