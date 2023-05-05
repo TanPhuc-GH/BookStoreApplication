@@ -2,6 +2,7 @@ package com.hcmute.bookstoreapplication.services.user;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
 import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
+import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
 import com.hcmute.bookstoreapplication.entities.User;
 import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import com.hcmute.bookstoreapplication.utils.EnumRole;
@@ -31,12 +32,13 @@ public class UserServiceImpl implements UserService{
     @Override
     public User createUser(UserDTO userDTO) {
         int OTP = 5;
+        User user = new User();
         RandomStringGenerator generator = new RandomStringGenerator.Builder().withinRange('0','9').build();
         Optional<User> existingUser = userRepository.findByEmail(userDTO.getEmail());
         if(existingUser.isPresent()){
-            throw new RuntimeException("User nay dax dang ky");
+            userDTO.setStatus("Tai Khoan đã dnawg ky");
+            return userDTO;
         }
-        User user = new User();
         user.setId(userDTO.getId());
         user.setDefaultAddress(userDTO.getAddress());
         user.setFirstName(userDTO.getFirstName());
@@ -62,6 +64,9 @@ public class UserServiceImpl implements UserService{
             else if (!user.getPassword().equals(userLoginResponse.getPassword())) {
                 response.setStatus("Mật khẩu sai");
             }
+            else if(user.getIsActive() == false){
+                response.setStatus("Tài khoản chưa được kích hoạt");
+            }
             else{
                 response.setEmail(user.getEmail());
                 response.setPassword(user.getPassword());
@@ -69,5 +74,29 @@ public class UserServiceImpl implements UserService{
             }
         }
         return response;
+    }
+
+    @Override
+    public UserRegisterOtpRespone otp(UserRegisterOtpRespone userRegisterOtpRespone) {
+        UserRegisterOtpRespone respone = new UserRegisterOtpRespone();
+        List<User> users = userRepository.findAll();
+        for(User user:users){
+            if(user.getEmail().equals(userRegisterOtpRespone.getEmail())){
+                if(!user.getVerificationCode().equals(userRegisterOtpRespone.getOtpCode())){
+                    respone.setStatus("Sai OTP");
+                    respone.setEmail(user.getEmail());
+                }
+                else{
+
+                    user.setIsActive(true);
+                    userRepository.save(user);
+                    respone.setStatus("Tài khoản được kích hoạt");
+                    respone.setEmail(user.getEmail());
+                    respone.setOtp(true);
+                    respone.setOtpCode(user.getVerificationCode());
+                }
+            }
+        }
+        return respone;
     }
 }

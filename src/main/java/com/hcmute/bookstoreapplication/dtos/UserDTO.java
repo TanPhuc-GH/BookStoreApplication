@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class UserDTO extends User {
     private Integer id;
     private String address;
     private String email;
