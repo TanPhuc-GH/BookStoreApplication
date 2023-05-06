@@ -58,19 +58,34 @@ public class UserServiceImpl implements UserService{
         UserLoginResponse response = new UserLoginResponse();
         List<User> users = userRepository.findAll();
         for(User user:users){
-            if(!user.getEmail().equals(userLoginResponse.getEmail())){
-                response.setStatus("Email này chưa đăng ký");
-            }
-            else if (!user.getPassword().equals(userLoginResponse.getPassword())) {
-                response.setStatus("Mật khẩu sai");
-            }
-            else if(user.getIsActive() == false){
-                response.setStatus("Tài khoản chưa được kích hoạt");
+            if(user.getEmail().equals(userLoginResponse.getEmail())){
+                if(user.getIsActive() == false){
+                    response.setStatus("Tài khoản chưa được kích hoạt");
+                    System.out.println(response.getEmail());
+                    System.out.println(response.getPassword());
+                    System.out.println(response.getStatus());
+                }
+                else if (!user.getPassword().equals(userLoginResponse.getPassword())) {
+                    response.setStatus("Mật khẩu sai");
+                    System.out.println(response.getEmail());
+                    System.out.println(response.getPassword());
+                    System.out.println(response.getStatus());
+                }
+                else{
+                    response.setEmail(user.getEmail());
+                    response.setPassword(user.getPassword());
+                    response.setStatus("Đăng nhập thành công");
+                }
+                break;
             }
             else{
-                response.setEmail(user.getEmail());
-                response.setPassword(user.getPassword());
-                response.setStatus("Đăng nhập thành công");
+                if(!user.getEmail().equals(userLoginResponse.getEmail())){
+                    response.setStatus("Email này chưa đăng ký");
+                    System.out.println(response.getEmail());
+                    System.out.println(response.getEmail());
+                    System.out.println(response.getPassword());
+                    System.out.println(response.getStatus());
+                }
             }
         }
         return response;

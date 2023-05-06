@@ -40,4 +40,5 @@ public class ProductController {
     public ResponseEntity<List<ProductDTO>> getFilterProduct(@RequestParam("price") String price, @RequestParam("publisher") String nxb){
         return new ResponseEntity<>(productService.filterProducts(price,nxb),HttpStatus.OK);
     }
+
 }
