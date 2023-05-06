@@ -25,7 +25,7 @@ public class Address implements Serializable {
 
     private String phone;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 }

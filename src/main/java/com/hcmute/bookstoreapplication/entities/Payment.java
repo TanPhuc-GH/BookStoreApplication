@@ -34,7 +34,7 @@ public class Payment implements Serializable {
     @Column(name = "payment_description")
     private String paymentDescription;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 

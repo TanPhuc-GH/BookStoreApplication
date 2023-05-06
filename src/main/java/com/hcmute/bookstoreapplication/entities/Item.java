@@ -31,7 +31,7 @@ public class Item implements Serializable {
     @MapsId
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_detail_id")
     private OrderDetail orderDetail;
 }

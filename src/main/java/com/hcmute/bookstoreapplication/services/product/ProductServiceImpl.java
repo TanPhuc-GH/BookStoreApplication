@@ -1,15 +1,26 @@
 package com.hcmute.bookstoreapplication.services.product;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import com.hcmute.bookstoreapplication.dtos.ProductDTO;
+import com.hcmute.bookstoreapplication.dtos.ProductDetailDTO;
+import com.hcmute.bookstoreapplication.dtos.response.CloudinaryUploadResponse;
+import com.hcmute.bookstoreapplication.entities.Author;
+import com.hcmute.bookstoreapplication.entities.Categories;
 import com.hcmute.bookstoreapplication.entities.Product;
+import com.hcmute.bookstoreapplication.entities.ProductImage;
+import com.hcmute.bookstoreapplication.repositories.ProductImageRepository;
 import com.hcmute.bookstoreapplication.repositories.ProductRepository;
+import com.hcmute.bookstoreapplication.services.cloudinary.CloudinaryService;
+import com.hcmute.bookstoreapplication.services.productimage.ProductImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +30,13 @@ public class ProductServiceImpl implements ProductService{
     private EntityManager entityManager;
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    CloudinaryService cloudinaryService;
+    @Autowired
+    ProductImageRepository productImageRepository;
+    @Autowired
+    ProductImageService productImageService;
+
 
     @Override
     public List<ProductDTO> getAllProduct() {
@@ -31,6 +49,42 @@ public class ProductServiceImpl implements ProductService{
         return productDTOS;
     }
 
+    @Override
+    public Product addProduct(ProductDetailDTO productDetailDTO, MultipartFile thumbnail, List<MultipartFile> images){
+        try{
+            Product product = new Product();
+            Categories categories = new Categories();
+            Author author = new Author();
+
+            categories.setId(productDetailDTO.getId());
+            author.setId(productDetailDTO.getId());
+
+            product.setProductName(productDetailDTO.getProductName());
+            product.setQuantity(productDetailDTO.getQuantity());
+            product.setDescription(productDetailDTO.getDescription());
+            product.setPrice(productDetailDTO.getPrice());
+            product.setPublisher(productDetailDTO.getPublisher());
+            product.setPublicationDate(productDetailDTO.getPulicationDate());
+            product.setCategories(categories);
+            product.setAuthor(author);
+//            productRepository.save(product);
+
+            List<ProductImage> productImages = new ArrayList<>();
+            ProductImage image = productImageService.upload(thumbnail.getBytes(),product,true);
+            productImages.add(image);
+            for (MultipartFile file : images) {
+                ProductImage productImage = productImageService.upload(file.getBytes(), product, false);
+                productImages.add(productImage);
+            }
+
+            productImageRepository.saveAll(productImages);
+
+            return productRepository.save(product);
+
+        }catch (IOException e){
+            throw new RuntimeException("Error adding product");
+        }
+    }
     @Override
     public List<ProductDTO> searchProducts(String query) {
         List<ProductDTO> products = productRepository.searchProducts(query);

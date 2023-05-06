@@ -1,5 +1,6 @@
 package com.hcmute.bookstoreapplication.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,11 +38,11 @@ public class Product implements Serializable {
     @OneToMany(mappedBy = "product")
     private List<ProductImage> productImages;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "categories_id")
     private Categories categories;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "author_id")
     private Author author;
 

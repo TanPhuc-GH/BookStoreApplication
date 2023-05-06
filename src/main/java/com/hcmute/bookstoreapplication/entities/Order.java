@@ -38,7 +38,7 @@ public class Order implements Serializable {
 
     private String status;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
