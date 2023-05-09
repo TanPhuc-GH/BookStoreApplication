@@ -16,5 +16,5 @@ public interface ProductService {
 
     Product addProduct(ProductDetailDTO productDetailDTO, MultipartFile thumbnail, List<MultipartFile> images);
     
-    
+    List<ProductDTO> getPopularBook();
 }

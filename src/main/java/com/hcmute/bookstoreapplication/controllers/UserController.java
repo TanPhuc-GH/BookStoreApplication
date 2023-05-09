@@ -1,16 +1,15 @@
 package com.hcmute.bookstoreapplication.controllers;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
+import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
+import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
 import com.hcmute.bookstoreapplication.entities.User;
 import com.hcmute.bookstoreapplication.services.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -37,5 +36,19 @@ public class UserController {
     public ResponseEntity<UserRegisterOtpRespone> otp(@RequestBody UserRegisterOtpRespone userRegisterOtpRespone){
         UserRegisterOtpRespone response = userService.otp(userRegisterOtpRespone);
         return ResponseEntity.ok(response);
+    }
+    @PostMapping("/forgetPassword")
+    public ResponseEntity<UserForgetPasswordResponse> forgetPassword(@RequestBody UserForgetPasswordResponse userForgetPasswordResponse){
+        UserForgetPasswordResponse response = userService.forgetPassword(userForgetPasswordResponse);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/resetPassword")
+    public ResponseEntity<UserResetPasswordResponse> resetPassword(@RequestBody UserResetPasswordResponse userResetPasswordResponse){
+        UserResetPasswordResponse response = userService.resetPassword(userResetPasswordResponse);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Integer userId){
+        return new ResponseEntity<>(user)
     }
 }
