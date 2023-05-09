@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,10 +29,8 @@ public class Item implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "product_id")
-    @MapsId
     private Product product;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_detail_id")
-    private OrderDetail orderDetail;
+    @OneToMany(mappedBy = "item")
+    private List<OrderDetail> orderDetails;
 }
