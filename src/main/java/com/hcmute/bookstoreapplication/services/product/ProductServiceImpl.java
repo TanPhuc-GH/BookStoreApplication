@@ -22,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -108,6 +110,20 @@ public class ProductServiceImpl implements ProductService{
         List<Product> products = productRepository.findAll(spec,sort);
         for (Product product : products){
             ProductDTO productDTO = new ProductDTO(product);
+            productDTOS.add(productDTO);
+        }
+        return productDTOS;
+    }
+
+    @Override
+    public List<ProductDTO> getPopularBook() {
+        List<Product> products = productRepository.findAll();
+        Collections.shuffle(products);
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        for(int i = 1;i<=3;i++){
+            Random random = new Random();
+            int randomInt = random.nextInt(products.size());
+            ProductDTO productDTO = new ProductDTO(products.get(randomInt));
             productDTOS.add(productDTO);
         }
         return productDTOS;
