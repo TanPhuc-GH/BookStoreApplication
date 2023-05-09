@@ -1,11 +1,13 @@
 package com.hcmute.bookstoreapplication.services.cart;
 
+import com.hcmute.bookstoreapplication.dtos.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.entities.Item;
 import com.hcmute.bookstoreapplication.entities.Product;
 import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
 import com.hcmute.bookstoreapplication.repositories.ItemRepository;
 import com.hcmute.bookstoreapplication.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,24 +23,27 @@ public class CartServiceImpl implements CartService{
     ItemRepository itemRepository;
 
     @Override
-    public Item createItem(Integer id, Integer quantity) {
-        Optional<Product> product = productRepository.findById(id);
-        if(!product.isPresent()){
-            throw new NotFoundException(String.format("Not find product has id: ",id));
-        }
-
+    public Item createItem(ItemRequestDTO itemRequestDTO) {
+        Optional<Product> product = productRepository.findById(itemRequestDTO.getId());
+        System.out.println(product.get().getId());
+//        if(!product.isPresent()){
+//            throw new NotFoundException(String.format("Product with id %d not found.", itemRequestDTO.getId()));
+//        }
+//
         Item item = new Item();
         Integer quantityProduct = product.get().getQuantity();
-
-        if(quantity <= quantityProduct) {
+//
+        if(itemRequestDTO.getQuantity() <= quantityProduct) {
             item.setProduct(product.get());
             item.setItemName(product.get().getProductName());
             item.setPrice(product.get().getPrice());
-            item.setQuantity(quantity);
+            item.setQuantity(itemRequestDTO.getQuantity());
             itemRepository.save(item);
+            return item;
+
         }else {
             throw new RuntimeException("Quantity of product is larger than in warehouse");
         }
-        return item;
+//        return item;
     }
 }

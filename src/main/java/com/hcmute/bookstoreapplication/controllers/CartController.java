@@ -1,5 +1,6 @@
 package com.hcmute.bookstoreapplication.controllers;
 
+import com.hcmute.bookstoreapplication.dtos.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.entities.Item;
 import com.hcmute.bookstoreapplication.services.cart.CartService;
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,7 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<Item> createItem(Integer id,
-                                           Integer quantity){
-        return new ResponseEntity<>(cartService.createItem(id, quantity), HttpStatus.OK);
+    public ResponseEntity<Item> createItem(@RequestBody ItemRequestDTO itemRequestDTO){
+        return new ResponseEntity<>(cartService.createItem(itemRequestDTO), HttpStatus.OK);
     }
 }

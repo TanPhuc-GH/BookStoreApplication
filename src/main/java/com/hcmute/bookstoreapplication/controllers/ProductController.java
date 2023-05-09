@@ -30,7 +30,7 @@ public class ProductController {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @CrossOrigin(origins = "http://192.168.2.114:8080/api/product/")
+//    @CrossOrigin(origins = "http://192.168.2.114:8080/api/product/")
     @GetMapping("/all")
     public ResponseEntity<List<ProductDTO>> getAllProduct(){
         return new ResponseEntity<>(productService.getAllProduct(), HttpStatus.OK);
