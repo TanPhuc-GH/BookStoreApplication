@@ -1,8 +1,10 @@
 package com.hcmute.bookstoreapplication.services.user;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
+import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
+import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
 import com.hcmute.bookstoreapplication.entities.User;
 import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import com.hcmute.bookstoreapplication.utils.EnumRole;
@@ -20,15 +22,15 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     @Autowired
     private JavaMailSender mailSender;
-    public void sendEmail(String toEmail, String subject, String body){
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("baovan301@gmail.com");
-        message.setTo(toEmail);
-        message.setText(body);
-        message.setSubject(subject);
-        mailSender.send(message);
-        System.out.println("Mail sent successfully....");
-    }
+//    public void sendEmail(String toEmail, String subject, String body){
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("baovan301@gmail.com");
+//        message.setTo(toEmail);
+//        message.setText(body);
+//        message.setSubject(subject);
+//        mailSender.send(message);
+//        System.out.println("Mail sent successfully....");
+//    }
     @Override
     public User createUser(UserDTO userDTO) {
         int OTP = 5;
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService{
         user.setRoles(EnumRole.USER);
         user.setIsActive(false);
         user.setVerificationCode(generator.generate(OTP));
-        sendEmail(userDTO.getEmail(),"OTP CODE FOR REGISTER","Here is your OTP Code: " + user.getVerificationCode());
+//        sendEmail(userDTO.getEmail(),"OTP CODE FOR REGISTER","Here is your OTP Code: " + user.getVerificationCode());
         return userRepository.save(user);
     }
 
@@ -74,6 +76,7 @@ public class UserServiceImpl implements UserService{
                 else{
                     response.setEmail(user.getEmail());
                     response.setPassword(user.getPassword());
+                    response.setId(user.getId());
                     response.setStatus("Đăng nhập thành công");
                 }
                 break;
@@ -102,7 +105,7 @@ public class UserServiceImpl implements UserService{
                     respone.setEmail(user.getEmail());
                 }
                 else{
-
+                    user.setVerificationCode(null);
                     user.setIsActive(true);
                     userRepository.save(user);
                     respone.setStatus("Tài khoản được kích hoạt");
@@ -113,5 +116,51 @@ public class UserServiceImpl implements UserService{
             }
         }
         return respone;
+    }
+
+    @Override
+    public UserForgetPasswordResponse forgetPassword(UserForgetPasswordResponse userForgetPasswordResponse) {
+        int OTP = 5;
+        RandomStringGenerator generator = new RandomStringGenerator.Builder().withinRange('0','9').build();
+        List<User> users = userRepository.findAll();
+        UserForgetPasswordResponse response = new UserForgetPasswordResponse();
+        for(User user:users){
+            if(!user.getEmail().equals(userForgetPasswordResponse.getEmail())){
+                response.setStatus("Email này chưa được đăng ký");
+            }
+            else {
+                response.setEmail(user.getEmail());
+                response.setStatus("Đã gởi mã OTP về cho gmail");
+                user.setVerificationCode(generator.generate(OTP));
+                userRepository.save(user);
+                break;
+            }
+        }
+        return response;
+    }
+
+    @Override
+    public UserResetPasswordResponse resetPassword(UserResetPasswordResponse userResetPasswordResponse) {
+        List<User> users = userRepository.findAll();
+        UserResetPasswordResponse response = new UserResetPasswordResponse();
+        for(User user:users){
+            if(user.getEmail().equals(userResetPasswordResponse.getEmail())){
+                if(user.getVerificationCode().equals(userResetPasswordResponse.getOtpCode())){
+                    response.setStatus("Đổi mật khẩu thành công");
+                    response.setOtpCode(user.getVerificationCode());
+                    response.setEmail(user.getEmail());
+                    response.setNewPassword(userResetPasswordResponse.getNewPassword());
+                    user.setVerificationCode(null);
+                    user.setPassword(userResetPasswordResponse.getNewPassword());
+                    userRepository.save(user);
+                }
+                else{
+                    response.setStatus("Mã OTP Sai");
+                }
+                break;
+            }
+
+        }
+        return response;
     }
 }

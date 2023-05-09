@@ -12,5 +12,5 @@ public interface ProductService {
 
     List<ProductDTO> filterProducts(String price, String nxb);
     
-    
+    List<ProductDTO> getPopularBook();
 }

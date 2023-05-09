@@ -14,9 +14,11 @@ public class UserLoginResponse {
     private String email;
     private String password;
     private String status;
+    private Integer id;
     public UserLoginResponse(){
         this.setStatus("");
         this.setPassword("");
         this.setEmail("");
+        this.setId(0);
     }
 }
