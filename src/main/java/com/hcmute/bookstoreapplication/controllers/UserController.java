@@ -52,4 +52,9 @@ public class UserController {
 //       return new ResponseEntity<>(user)
 //   }
 
+   @GetMapping("/{userId}")
+   public ResponseEntity<UserDTO> getUser(@PathVariable Integer userId){
+       return new ResponseEntity<>(userService.getUser(userId),HttpStatus.OK);
+   }
+
 }

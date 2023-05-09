@@ -1,6 +1,6 @@
 package com.hcmute.bookstoreapplication.controllers;
 
-import com.hcmute.bookstoreapplication.dtos.ItemRequestDTO;
+import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.entities.Item;
 import com.hcmute.bookstoreapplication.services.cart.CartService;
 import org.springframework.http.HttpStatus;

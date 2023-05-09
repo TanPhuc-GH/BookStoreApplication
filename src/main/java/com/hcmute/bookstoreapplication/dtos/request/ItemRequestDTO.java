@@ -1,4 +1,4 @@
-package com.hcmute.bookstoreapplication.dtos;
+package com.hcmute.bookstoreapplication.dtos.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
