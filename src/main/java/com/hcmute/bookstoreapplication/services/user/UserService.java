@@ -13,4 +13,5 @@ public interface UserService {
     UserRegisterOtpRespone otp(UserRegisterOtpRespone userRegisterOtpRespone);
     UserForgetPasswordResponse forgetPassword(UserForgetPasswordResponse userForgetPasswordResponse);
     UserResetPasswordResponse resetPassword(UserResetPasswordResponse userResetPasswordResponse);
+    UserDTO getUser(Integer id);
 }
