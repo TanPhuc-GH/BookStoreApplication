@@ -47,8 +47,9 @@ public class UserController {
         UserResetPasswordResponse response = userService.resetPassword(userResetPasswordResponse);
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable Integer userId){
-        return new ResponseEntity<>(userService.getUser(userId),HttpStatus.OK);
-    }
+   @GetMapping("/{userId}")
+   public ResponseEntity<UserDTO> getUser(@PathVariable Integer userId){
+       return new ResponseEntity<>(user)
+   }
+
 }

@@ -25,13 +25,13 @@ public class OrderDetail implements Serializable {
 
     private Float price;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "order_id")
-    @MapsId
     private Order order;
 
-    @OneToMany(mappedBy = "orderDetail")
-    private List<Item> items;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item;
 
 
 }

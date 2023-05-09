@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,14 +39,14 @@ public class Order implements Serializable {
 
     private String status;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToOne(mappedBy = "order")
     private Payment payment;
 
-    @OneToOne(mappedBy = "order")
-    private OrderDetail orderDetail;
+    @OneToMany(mappedBy = "order")
+    private List<OrderDetail> orderDetails;
 
 }
