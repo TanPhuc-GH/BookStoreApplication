@@ -46,7 +46,7 @@ public class Product implements Serializable {
     @JoinColumn(name = "author_id")
     private Author author;
 
-    @OneToOne(mappedBy = "product")
-    private Item item;
+    @OneToMany(mappedBy = "product")
+    private List<Item> items;
 
 }
