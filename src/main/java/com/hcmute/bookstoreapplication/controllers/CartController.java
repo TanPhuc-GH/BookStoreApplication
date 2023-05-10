@@ -1,5 +1,6 @@
 package com.hcmute.bookstoreapplication.controllers;
 
+import com.hcmute.bookstoreapplication.dtos.ItemDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.entities.Item;
 import com.hcmute.bookstoreapplication.services.cart.CartService;
@@ -18,7 +19,7 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<Item> createItem(@RequestBody ItemRequestDTO itemRequestDTO){
+    public ResponseEntity<ItemDTO> createItem(@RequestBody ItemRequestDTO itemRequestDTO){
         return new ResponseEntity<>(cartService.createItem(itemRequestDTO), HttpStatus.OK);
     }
 }
