@@ -5,21 +5,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "cart")
 public class Cart implements Serializable {
-    private ArrayList<Item> items;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-    public void addItem(ArrayList<Item> items){
+    private Date create_at;
+
+    private Date upadate_at;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "cart")
+    private List<Item> items;
+
+    public void addItem(List<Item> items){
 
     }
 
-    public  void removeItem(ArrayList<Item> items){
+    public  void removeItem(List<Item> items){
 
     }
 }

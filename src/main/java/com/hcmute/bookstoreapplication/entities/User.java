@@ -59,6 +59,10 @@ public class User implements Serializable {
     @Column(name = "is_active")
     private Boolean isActive = false;
 
+    @OneToOne(mappedBy = "user")
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
     @OneToMany(mappedBy = "user")
     private List<Address> addresses;
 

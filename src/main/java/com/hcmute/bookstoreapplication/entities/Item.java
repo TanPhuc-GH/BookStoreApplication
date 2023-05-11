@@ -31,6 +31,10 @@ public class Item implements Serializable {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private  Cart cart;
+
     @OneToMany(mappedBy = "item")
     private List<OrderDetail> orderDetails;
 }
