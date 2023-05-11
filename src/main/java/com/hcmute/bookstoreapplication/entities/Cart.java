@@ -27,7 +27,7 @@ public class Cart implements Serializable {
     private Date upadate_at;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @OneToMany(mappedBy = "cart")

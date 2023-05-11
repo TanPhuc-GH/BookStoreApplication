@@ -39,7 +39,6 @@ public class Payment implements Serializable {
     private User user;
 
     @OneToOne
-    @JoinColumn(name = "order_id")
-    @MapsId
+    @JoinColumn(name = "order_id", unique = true)
     private Order order;
 }
