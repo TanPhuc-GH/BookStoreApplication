@@ -8,8 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ItemDTO {
     private Integer id;
 
@@ -18,12 +18,15 @@ public class ItemDTO {
     private Integer quantity;
 
     private Float price;
-    private Integer product_id;
+
+    private Integer productId;
+
+
     public ItemDTO(Item item){
         this.setId(item.getId());
         this.setItemName(item.getItemName());
         this.setQuantity(item.getQuantity());
         this.setPrice(item.getPrice());
-        this.setProduct_id(item.getProduct().getId());
+        this.setProductId(item.getProduct().getId());
     }
 }

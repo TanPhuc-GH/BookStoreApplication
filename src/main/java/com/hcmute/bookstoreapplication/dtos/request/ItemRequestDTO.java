@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemRequestDTO {
-    private Integer id;
+    private Integer product_id;
+    private Integer user_id;
     private Integer quantity;
 }

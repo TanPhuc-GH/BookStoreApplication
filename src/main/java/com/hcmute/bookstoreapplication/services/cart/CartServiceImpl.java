@@ -1,12 +1,17 @@
 package com.hcmute.bookstoreapplication.services.cart;
 
-import com.hcmute.bookstoreapplication.dtos.ItemDTO;
+import com.hcmute.bookstoreapplication.dtos.CartDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
+import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
+import com.hcmute.bookstoreapplication.entities.Cart;
 import com.hcmute.bookstoreapplication.entities.Item;
 import com.hcmute.bookstoreapplication.entities.Product;
+import com.hcmute.bookstoreapplication.entities.User;
 import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
+import com.hcmute.bookstoreapplication.repositories.CartRepository;
 import com.hcmute.bookstoreapplication.repositories.ItemRepository;
 import com.hcmute.bookstoreapplication.repositories.ProductRepository;
+import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,70 +19,118 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CartServiceImpl implements CartService{
+public class CartServiceImpl implements CartService {
 
     @Autowired
     ProductRepository productRepository;
     @Autowired
     ItemRepository itemRepository;
+    @Autowired
+    CartRepository cartRepository;
+    @Autowired
+    UserRepository userRepository;
+
 
     @Override
-    public ItemDTO createItem(ItemRequestDTO itemRequestDTO) {
-        Optional<Product> product = productRepository.findById(itemRequestDTO.getId());
-//        Optional<Item> optionalItem = itemRepository.findById(itemRequestDTO.getId());
-        if(!product.isPresent()){
-            throw new NotFoundException(String.format("Product with id %d not found.", itemRequestDTO.getId()));
+    public CartDTO getCart(Integer user_id) {
+        Cart cart = cartRepository.findByUserId(user_id);
+        if (cart == null){
+            throw new NotFoundException("Do not have products in your cart");
         }
+        List<Item> item = itemRepository.findByCartId(cart.getId());
+        cart.setItems(item);
+        CartDTO cartDTO = new CartDTO(cart);
+        return cartDTO;
+    }
+
+    @Override
+    public BaseResponse createItem(ItemRequestDTO itemRequestDTO) {
+        Optional<Cart> cart = Optional.ofNullable(cartRepository.findByUserId(itemRequestDTO.getUser_id()));
+        Optional<User> user = userRepository.findById(itemRequestDTO.getUser_id());
+
+        if (!user.isPresent()) {
+            throw new NotFoundException(String.format("User with id %d not found.", itemRequestDTO.getUser_id()));
+        }
+        if (!cart.isPresent()) {
+            Cart newCart = new Cart();
+            newCart.setUser(user.get());
+            cartRepository.save(newCart);
+            cart = Optional.of(newCart);
+        }
+
+        Optional<Product> product = productRepository.findById(itemRequestDTO.getProduct_id());
+        if (!product.isPresent()) {
+            throw new NotFoundException(String.format("Product with id %d not found.", itemRequestDTO.getProduct_id()));
+        }
+        int quantityProduct = product.get().getQuantity();
+        Optional<Item> itemOptional = Optional.ofNullable(itemRepository.findByProductIdAndCartId(itemRequestDTO.getProduct_id(), cart.get().getId()));
         Item item = new Item();
-        List<Item> items = itemRepository.findAll();
-        ItemDTO itemDTO = new ItemDTO();
-//        Product productUpdate = new Product();
-        Integer quantityProduct = product.get().getQuantity();
-        Integer count = 0;
-        if(itemRequestDTO.getQuantity() <= quantityProduct) {
-            if(items.size()==0){
+        if (!itemOptional.isPresent()) {
+            if (itemRequestDTO.getQuantity() <= quantityProduct) {
                 item.setProduct(product.get());
                 item.setItemName(product.get().getProductName());
                 item.setPrice(product.get().getPrice());
                 item.setQuantity(itemRequestDTO.getQuantity());
-                itemRepository.save(item);
-                product.get().setQuantity(quantityProduct - itemRequestDTO.getQuantity());
-                productRepository.save(product.get());
-                itemDTO.setProduct_id(product.get().getId());
-                itemDTO.setItemName(product.get().getProductName());
-                itemDTO.setPrice(product.get().getPrice());
-                itemDTO.setQuantity(itemRequestDTO.getQuantity());
-                return itemDTO;
-            }
-            else{
-                for(Item itemCart:items){
-                    if(itemCart.getProduct().getId() == itemRequestDTO.getId()){
-                        itemCart.setQuantity(itemRequestDTO.getQuantity() + itemCart.getQuantity());
-                        itemRepository.save(itemCart);
-                        product.get().setQuantity(quantityProduct - itemRequestDTO.getQuantity());
-                        productRepository.save(product.get());
-                        break;
-                    }
-                    count++;
-                }
-                if(count == items.size()){
-                    item.setProduct(product.get());
-                    item.setItemName(product.get().getProductName());
-                    item.setPrice(product.get().getPrice());
-                    item.setQuantity(itemRequestDTO.getQuantity());
-                    itemRepository.save(item);
-                    product.get().setQuantity(quantityProduct - itemRequestDTO.getQuantity());
-                    productRepository.save(product.get());
-                    itemDTO.setProduct_id(product.get().getId());
-                    itemDTO.setItemName(product.get().getProductName());
-                    itemDTO.setPrice(product.get().getPrice());
-                    itemDTO.setQuantity(itemRequestDTO.getQuantity());
-                    return itemDTO;
-                }
-                return itemDTO;
-            }
-        }else {
-            throw new RuntimeException("Quantity of product is larger than in warehouse");
+                item.setCart(cart.get());
+            } else throw new RuntimeException("Quantity of product is larger than in warehouse");
+        } else {
+            int totalQuantity = itemOptional.get().getQuantity() + itemRequestDTO.getQuantity();
+            if (totalQuantity <= quantityProduct) {
+                item = itemOptional.get();
+                item.setQuantity(totalQuantity);
+            } else throw new RuntimeException("Quantity of item no more than product quantity");
         }
+        itemRepository.save(item);
+        return new BaseResponse(true, "Adding product to cart successfully");
     }
 }
+
+
+
+//    @Override
+//    public CartDTO createItem(ItemRequestDTO itemRequestDTO) {
+//        // Tìm cart của user
+//        Cart cart = cartRepository.findByUserId(itemRequestDTO.getUser_id()).orElseGet(() -> {
+//            User user = userRepository.findById(itemRequestDTO.getUser_id())
+//                    .orElseThrow(() -> new NotFoundException(String.format("User with id %d not found.", itemRequestDTO.getUser_id())));
+//            Cart newCart = new Cart();
+//            newCart.setUser(user);
+//            return cartRepository.save(newCart);
+//        });
+//
+//        // Tìm sản phẩm
+//        Product product = productRepository.findById(itemRequestDTO.getProduct_id())
+//                .orElseThrow(() -> new NotFoundException(String.format("Product with id %d not found.", itemRequestDTO.getProduct_id())));
+//
+//        // Kiểm tra số lượng sản phẩm trong kho
+//        int quantityProduct = product.getQuantity();
+//        int requestQuantity = itemRequestDTO.getQuantity();
+//        if (requestQuantity > quantityProduct) {
+//            throw new RuntimeException("Quantity of product is larger than in warehouse");
+//        }
+//
+//        // Tìm item trong cart (nếu có)
+//        Item item = itemRepository.findByProductIdAndCartId(itemRequestDTO.getProduct_id(), cart.getId())
+//                .orElseGet(() -> {
+//                    Item newItem = new Item();
+//                    newItem.setProduct(product);
+//                    newItem.setItemName(product.getProductName());
+//                    newItem.setPrice(product.getPrice());
+//                    newItem.setCart(cart);
+//                    return newItem;
+//                });
+//
+//        // Cập nhật số lượng item
+//        int totalQuantity = item.getQuantity() + requestQuantity;
+//        if (totalQuantity > quantityProduct) {
+//            throw new RuntimeException("Quantity of item no more than product quantity");
+//        }
+//        item.setQuantity(totalQuantity);
+//        itemRepository.save(item);
+//
+//        // Tạo danh sách item để trả về
+//        List<Item> itemList = Collections.singletonList(item);
+//        CartDTO cartDTO = new CartDTO(cart);
+//        cartDTO.setItems(itemList);
+//        return cartDTO;
+//    }

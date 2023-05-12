@@ -1,9 +1,12 @@
 package com.hcmute.bookstoreapplication.services.cart;
 
-import com.hcmute.bookstoreapplication.dtos.ItemDTO;
+import com.hcmute.bookstoreapplication.dtos.CartDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
-import com.hcmute.bookstoreapplication.entities.Item;
+import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
+
+import java.util.List;
 
 public interface CartService {
-    ItemDTO createItem(ItemRequestDTO itemRequestDTO);
+    CartDTO getCart(Integer userId);
+    BaseResponse createItem(ItemRequestDTO itemRequestDTO);
 }

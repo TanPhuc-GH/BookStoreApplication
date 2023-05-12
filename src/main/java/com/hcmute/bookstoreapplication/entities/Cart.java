@@ -32,12 +32,4 @@ public class Cart implements Serializable {
 
     @OneToMany(mappedBy = "cart")
     private List<Item> items;
-
-    public void addItem(List<Item> items){
-
-    }
-
-    public  void removeItem(List<Item> items){
-
-    }
 }

@@ -59,7 +59,7 @@ public class User implements Serializable {
     @Column(name = "is_active")
     private Boolean isActive = false;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
