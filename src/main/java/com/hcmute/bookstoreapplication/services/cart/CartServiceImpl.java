@@ -3,15 +3,9 @@ package com.hcmute.bookstoreapplication.services.cart;
 import com.hcmute.bookstoreapplication.dtos.CartDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
-import com.hcmute.bookstoreapplication.entities.Cart;
-import com.hcmute.bookstoreapplication.entities.Item;
-import com.hcmute.bookstoreapplication.entities.Product;
-import com.hcmute.bookstoreapplication.entities.User;
+import com.hcmute.bookstoreapplication.entities.*;
 import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
-import com.hcmute.bookstoreapplication.repositories.CartRepository;
-import com.hcmute.bookstoreapplication.repositories.ItemRepository;
-import com.hcmute.bookstoreapplication.repositories.ProductRepository;
-import com.hcmute.bookstoreapplication.repositories.UserRepository;
+import com.hcmute.bookstoreapplication.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +23,8 @@ public class CartServiceImpl implements CartService {
     CartRepository cartRepository;
     @Autowired
     UserRepository userRepository;
-
+    @Autowired
+    ProductImageRepository productImageRepository;
 
     @Override
     public CartDTO getCart(Integer user_id) {
@@ -47,6 +42,7 @@ public class CartServiceImpl implements CartService {
     public BaseResponse createItem(ItemRequestDTO itemRequestDTO) {
         Optional<Cart> cart = Optional.ofNullable(cartRepository.findByUserId(itemRequestDTO.getUser_id()));
         Optional<User> user = userRepository.findById(itemRequestDTO.getUser_id());
+        ProductImage productImage = productImageRepository.getThumbnail(itemRequestDTO.getProduct_id());
 
         if (!user.isPresent()) {
             throw new NotFoundException(String.format("User with id %d not found.", itemRequestDTO.getUser_id()));
@@ -56,6 +52,9 @@ public class CartServiceImpl implements CartService {
             newCart.setUser(user.get());
             cartRepository.save(newCart);
             cart = Optional.of(newCart);
+        }
+        if (productImage == null){
+            throw new NotFoundException("Not found product image");
         }
 
         Optional<Product> product = productRepository.findById(itemRequestDTO.getProduct_id());
@@ -70,6 +69,7 @@ public class CartServiceImpl implements CartService {
                 item.setProduct(product.get());
                 item.setItemName(product.get().getProductName());
                 item.setPrice(product.get().getPrice());
+                item.setThumbnail(productImage.getPath());
                 item.setQuantity(itemRequestDTO.getQuantity());
                 item.setCart(cart.get());
             } else throw new RuntimeException("Quantity of product is larger than in warehouse");

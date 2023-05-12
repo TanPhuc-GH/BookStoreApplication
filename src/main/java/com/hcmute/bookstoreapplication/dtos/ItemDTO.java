@@ -19,6 +19,8 @@ public class ItemDTO {
 
     private Float price;
 
+    private String thumbnailPath;
+
     private Integer productId;
 
 
@@ -27,6 +29,7 @@ public class ItemDTO {
         this.setItemName(item.getItemName());
         this.setQuantity(item.getQuantity());
         this.setPrice(item.getPrice());
+        this.setThumbnailPath(item.getThumbnail());
         this.setProductId(item.getProduct().getId());
     }
 }

@@ -27,6 +27,7 @@ public class Item implements Serializable {
 
     private Float price;
 
+    private String thumbnail;
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
