@@ -25,8 +25,8 @@ public class ProductDetailDTO {
     private Float price;
     private Date pulicationDate;
     private List<String> imagesProduct;
-    private String categories;
-    private String author;
+//    private String categories;
+//    private String author;
     public ProductDetailDTO(Product product){
         this.setId(product.getId());
         this.setProductName(product.getProductName());
@@ -41,8 +41,8 @@ public class ProductDetailDTO {
             imageList.add(productImageSigle);
         }
         this.setImagesProduct(imageList);
-        this.setCategories(product.getCategories().getName());
-        this.setAuthor(product.getAuthor().getAuthorName());
+//        this.setCategories(product.getCategories().getName());
+//        this.setAuthor(product.getAuthor().getAuthorName());
 
     }
 }
