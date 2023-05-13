@@ -28,6 +28,8 @@ public class Item implements Serializable {
     private Float price;
 
     private String thumbnail;
+
+    private Boolean statusCheckout = false;
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

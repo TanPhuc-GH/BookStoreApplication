@@ -23,6 +23,8 @@ public class ItemDTO {
 
     private Integer productId;
 
+    private Integer cartId;
+
 
     public ItemDTO(Item item){
         this.setId(item.getId());
@@ -31,5 +33,6 @@ public class ItemDTO {
         this.setPrice(item.getPrice());
         this.setThumbnailPath(item.getThumbnail());
         this.setProductId(item.getProduct().getId());
+        this.setCartId(item.getCart().getId());
     }
 }

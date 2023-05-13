@@ -1,6 +1,9 @@
 package com.hcmute.bookstoreapplication.services.cart;
 
 import com.hcmute.bookstoreapplication.dtos.CartDTO;
+import com.hcmute.bookstoreapplication.dtos.CheckoutDTO;
+import com.hcmute.bookstoreapplication.dtos.ItemDTO;
+import com.hcmute.bookstoreapplication.dtos.request.CheckoutRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
 import com.hcmute.bookstoreapplication.entities.*;
@@ -8,9 +11,14 @@ import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
 import com.hcmute.bookstoreapplication.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -25,7 +33,12 @@ public class CartServiceImpl implements CartService {
     UserRepository userRepository;
     @Autowired
     ProductImageRepository productImageRepository;
-
+    @Autowired
+    OrderRepository orderRepository;
+    @Autowired
+    OrderDetailRepository orderDetailRepository;
+    @Autowired
+    PaymentRepository paymentRepository;
     @Override
     public CartDTO getCart(Integer user_id) {
         Cart cart = cartRepository.findByUserId(user_id);
@@ -37,6 +50,139 @@ public class CartServiceImpl implements CartService {
         CartDTO cartDTO = new CartDTO(cart);
         return cartDTO;
     }
+
+    @Override
+    public CheckoutDTO getCheckoutInfo(Integer userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()){
+            throw new NotFoundException(String.format("User with id %d not found", userId));
+        }
+        CheckoutDTO checkoutDTO = new CheckoutDTO();
+        checkoutDTO.setUserId(userId);
+        checkoutDTO.setUserName(user.get().getFirstName() + user.get().getLastName());
+        checkoutDTO.setAddress(user.get().getDefaultAddress());
+        checkoutDTO.setPhone(user.get().getPhoneNumber());
+        return checkoutDTO;
+    }
+
+    @Override
+    @Transactional
+    public BaseResponse checkout(CheckoutRequestDTO checkoutRequestDTO) {
+        Optional<User> user = userRepository.findById(checkoutRequestDTO.getUserId());
+        if (!user.isPresent()){
+            throw new NotFoundException(String.format("User with id %d not found", checkoutRequestDTO.getUserId()));
+        }
+        Order order = new Order();
+        order.setPhoneNumber(checkoutRequestDTO.getPhone());
+        order.setTotal(checkoutRequestDTO.getTotalPrice());
+        order.setStatus("Pending");
+        order.setUser(user.get());
+        orderRepository.save(order);
+
+        List<Item> items = new ArrayList<>();
+        List<OrderDetail> orderDetails = new ArrayList<>();
+
+        for (ItemDTO itemDTO : checkoutRequestDTO.getItemDTOS()){
+            Item item = new Item();
+            item.setId(itemDTO.getId());
+            item.setStatusCheckout(true);
+            item.setItemName(itemDTO.getItemName());
+            item.setPrice(itemDTO.getPrice());
+            item.setQuantity(itemDTO.getQuantity());
+
+            Optional<Cart> cart = cartRepository.findById(itemDTO.getCartId());
+            if (!cart.isPresent()){
+                throw new NotFoundException(String.format("Cart with id %d not found", itemDTO.getCartId()));
+            }
+            item.setCart(cart.get());
+
+            Optional<Product> product = productRepository.findById(itemDTO.getProductId());
+            if (!product.isPresent()){
+                throw new NotFoundException(String.format("Product with id %d not found",itemDTO.getProductId()));
+            }
+            product.get().setQuantity(product.get().getQuantity() - itemDTO.getQuantity());
+            item.setProduct(product.get());
+            item.setThumbnail(itemDTO.getThumbnailPath());
+            items.add(item);
+
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setPrice(itemDTO.getPrice());
+            orderDetail.setQuantity(itemDTO.getQuantity());
+            orderDetail.setItem(item);
+            orderDetail.setOrder(order);
+            orderDetails.add(orderDetail);
+        }
+
+        itemRepository.saveAll(items);
+        orderDetailRepository.saveAll(orderDetails);
+//        productRepository.saveAll(items.stream().map(Item::getProduct).collect(Collectors.toList()));
+        List<Product> products = items.stream()
+                .filter(item -> item.getProduct() != null)
+                .map(Item::getProduct)
+                .collect(Collectors.toList());
+        productRepository.saveAll(products);
+
+        Payment payment = new Payment();
+        payment.setPaymentMethod(checkoutRequestDTO.getPaymentMethod());
+        payment.setPaymentPrice(checkoutRequestDTO.getTotalPrice());
+        payment.setOrder(order);
+        payment.setUser(user.get());
+        paymentRepository.save(payment);
+        return new BaseResponse(true, "Checkout successfully");
+    }
+//    @Override
+//    public BaseResponse checkout(CheckoutRequestDTO checkoutRequestDTO) {
+//        Optional<User> user = userRepository.findById(checkoutRequestDTO.getUserId());
+//        if (!user.isPresent()){
+//            throw new NotFoundException(String.format("User with id %d not found", checkoutRequestDTO.getUserId()));
+//        }
+//        Order order = new Order();
+//        order.setPhoneNumber(checkoutRequestDTO.getPhone());
+//        order.setTotal(checkoutRequestDTO.getTotalPrice());
+//        order.setStatus("Pending");
+//        order.setUser(user.get());
+//        orderRepository.save(order);
+//
+//        for (ItemDTO itemDTO : checkoutRequestDTO.getItemDTOS()){
+//            Item item = new Item();
+//            item.setId(itemDTO.getId());
+//
+//            OrderDetail orderDetail = new OrderDetail();
+//            orderDetail.setPrice(itemDTO.getPrice());
+//            orderDetail.setQuantity(itemDTO.getQuantity());
+//            orderDetail.setItem(item);
+//            orderDetail.setOrder(order);
+//            orderDetailRepository.save(orderDetail);
+//
+//            Optional<Cart> cart = cartRepository.findById(itemDTO.getCartId());
+//            if (!cart.isPresent()){
+//                throw new NotFoundException(String.format("Cart with id %d not found", itemDTO.getCartId()));
+//            }
+//            Optional<Product> product = productRepository.findById(itemDTO.getProductId());
+//            if (!product.isPresent()){
+//                throw new NotFoundException(String.format("Product with id %d not found",itemDTO.getProductId()));
+//            }
+//            product.get().setQuantity(product.get().getQuantity() - itemDTO.getQuantity());
+//            productRepository.save(product.get());
+//
+//            item.setStatusCheckout(true);
+//            item.setItemName(itemDTO.getItemName());
+//            item.setPrice(itemDTO.getPrice());
+//            item.setQuantity(itemDTO.getQuantity());
+//            item.setProduct(product.get());
+//            item.setCart(cart.get());
+//            item.setThumbnail(itemDTO.getThumbnailPath());
+//            itemRepository.save(item);
+//        }
+//        Payment payment = new Payment();
+//        payment.setPaymentMethod(checkoutRequestDTO.getPaymentMethod());
+//        payment.setPaymentPrice(checkoutRequestDTO.getTotalPrice());
+//        payment.setOrder(order);
+//        payment.setUser(user.get());
+//        paymentRepository.save(payment);
+//        return new BaseResponse(true, "Checkout successfully");
+//    }
+
 
     @Override
     public BaseResponse createItem(ItemRequestDTO itemRequestDTO) {
