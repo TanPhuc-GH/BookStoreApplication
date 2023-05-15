@@ -13,4 +13,5 @@ public interface CartService {
     CheckoutDTO getCheckoutInfo(Integer userId);
     BaseResponse checkout(CheckoutRequestDTO checkoutRequestDTO);
     BaseResponse createItem(ItemRequestDTO itemRequestDTO);
+    BaseResponse deleteItem(Integer itemId);
 }

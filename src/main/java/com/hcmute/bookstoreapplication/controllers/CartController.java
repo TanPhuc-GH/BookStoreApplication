@@ -21,8 +21,8 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @GetMapping("/items")
-    public ResponseEntity<CartDTO> getCart(@RequestParam Integer userId){
+    @GetMapping("/items/{userId}")
+    public ResponseEntity<CartDTO> getCart(@PathVariable Integer userId){
         return ResponseEntity.ok(cartService.getCart(userId));
     }
 
@@ -59,6 +59,16 @@ public class CartController {
             return ResponseEntity.
                     status(HttpStatus.INTERNAL_SERVER_ERROR).
                     body(new BaseResponse(false, e.getMessage()));
+        }
+    }
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<BaseResponse> delete(@PathVariable Integer itemId){
+        try{
+            return ResponseEntity.ok(cartService.deleteItem(itemId));
+        }catch (RuntimeException e){
+            return ResponseEntity.
+                    status(HttpStatus.INTERNAL_SERVER_ERROR).
+                    body(new BaseResponse(false,e.getMessage()));
         }
     }
 }

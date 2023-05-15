@@ -10,13 +10,11 @@ import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
 import com.hcmute.bookstoreapplication.entities.*;
 import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
 import com.hcmute.bookstoreapplication.repositories.*;
+import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +36,7 @@ public class CartServiceImpl implements CartService {
     OrderDetailRepository orderDetailRepository;
     @Autowired
     PaymentRepository paymentRepository;
+    @Transactional(readOnly = true)
     @Override
     public CartDTO getCart(Integer user_id) {
         Cart cart = cartRepository.findByUserId(user_id);
@@ -46,8 +45,7 @@ public class CartServiceImpl implements CartService {
         }
         List<Item> item = itemRepository.findByCartId(cart.getId());
         cart.setItems(item);
-        CartDTO cartDTO = new CartDTO(cart);
-        return cartDTO;
+        return new CartDTO(cart);
     }
 
     @Override
@@ -76,7 +74,6 @@ public class CartServiceImpl implements CartService {
         item.setProduct(product);
         itemRepository.save(item);
         productRepository.save(product);
-
 
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setPrice(checkoutRequestBuyNowDTO.getItemDetail().getPrice());
@@ -228,6 +225,7 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
+    @Transactional
     public BaseResponse createItem(ItemRequestDTO itemRequestDTO) {
         Optional<Cart> cart = Optional.ofNullable(cartRepository.findByUserId(itemRequestDTO.getUser_id()));
         Optional<User> user = userRepository.findById(itemRequestDTO.getUser_id());
@@ -271,6 +269,15 @@ public class CartServiceImpl implements CartService {
         }
         itemRepository.save(item);
         return new BaseResponse(true, "Adding product to cart successfully");
+    }
+
+    @Override
+    public BaseResponse deleteItem(Integer itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(()->
+                new NotFoundException(String.format("Item with id %d not found", itemId)));
+        itemRepository.delete(item);
+
+        return new BaseResponse(true, "Delete successfully");
     }
 }
 
