@@ -1,9 +1,14 @@
 package com.hcmute.bookstoreapplication.services.product_detail;
 
 import com.hcmute.bookstoreapplication.dtos.ProductDetailDTO;
-import com.hcmute.bookstoreapplication.entities.Product;
+import com.hcmute.bookstoreapplication.dtos.request.CheckoutRequestBuyNowDTO;
+import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
+import com.hcmute.bookstoreapplication.entities.*;
 import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
+import com.hcmute.bookstoreapplication.repositories.OrderDetailRepository;
+import com.hcmute.bookstoreapplication.repositories.OrderRepository;
 import com.hcmute.bookstoreapplication.repositories.ProductRepository;
+import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +21,7 @@ import java.util.Optional;
 public class ProductDetailServiceImpl implements ProductDetailService{
     @Autowired
     ProductRepository productRepository;
+
     @Override
     public ProductDetailDTO getProductDetail(Integer id) {
         Optional<Product> product = productRepository.findById(id);

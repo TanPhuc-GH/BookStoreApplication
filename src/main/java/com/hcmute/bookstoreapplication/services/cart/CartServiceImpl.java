@@ -3,6 +3,7 @@ package com.hcmute.bookstoreapplication.services.cart;
 import com.hcmute.bookstoreapplication.dtos.CartDTO;
 import com.hcmute.bookstoreapplication.dtos.CheckoutDTO;
 import com.hcmute.bookstoreapplication.dtos.ItemDTO;
+import com.hcmute.bookstoreapplication.dtos.request.CheckoutRequestBuyNowDTO;
 import com.hcmute.bookstoreapplication.dtos.request.CheckoutRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
@@ -13,16 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
-
     @Autowired
     ProductRepository productRepository;
     @Autowired
@@ -49,6 +48,50 @@ public class CartServiceImpl implements CartService {
         cart.setItems(item);
         CartDTO cartDTO = new CartDTO(cart);
         return cartDTO;
+    }
+
+    @Override
+    @Transactional
+    public BaseResponse buyNow(CheckoutRequestBuyNowDTO checkoutRequestBuyNowDTO) {
+        User user = userRepository.findById(checkoutRequestBuyNowDTO.getUserId()).
+                orElseThrow(()-> new NotFoundException(String.format("User with id %d not found", checkoutRequestBuyNowDTO.getUserId())));
+
+        Order order = new Order();
+        order.setPhoneNumber(checkoutRequestBuyNowDTO.getPhone());
+        order.setTotal(checkoutRequestBuyNowDTO.getTotalPrice());
+        order.setStatus("Pending");
+        order.setUser(user);
+        orderRepository.save(order);
+
+        Item item = new Item();
+        item.setItemName(checkoutRequestBuyNowDTO.getItemDetail().getItemName());
+        item.setPrice(checkoutRequestBuyNowDTO.getItemDetail().getPrice());
+        item.setQuantity(checkoutRequestBuyNowDTO.getItemDetail().getQuantity());
+        item.setThumbnail(checkoutRequestBuyNowDTO.getItemDetail().getThumbnailPath());
+        item.setStatusCheckout(true);
+
+        Product product = productRepository.findById(checkoutRequestBuyNowDTO.getItemDetail().getProductId()).
+                orElseThrow(() -> new NotFoundException(String.format("Product with id %d not found", checkoutRequestBuyNowDTO.getItemDetail().getProductId())));
+        product.setQuantity(product.getQuantity() - checkoutRequestBuyNowDTO.getItemDetail().getQuantity());
+        item.setProduct(product);
+        itemRepository.save(item);
+        productRepository.save(product);
+
+
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setPrice(checkoutRequestBuyNowDTO.getItemDetail().getPrice());
+        orderDetail.setQuantity(checkoutRequestBuyNowDTO.getItemDetail().getQuantity());
+        orderDetail.setItem(item);
+        orderDetail.setOrder(order);
+        orderDetailRepository.save(orderDetail);
+
+        Payment payment = new Payment();
+        payment.setPaymentMethod(checkoutRequestBuyNowDTO.getPaymentMethod());
+        payment.setPaymentPrice(checkoutRequestBuyNowDTO.getTotalPrice());
+        payment.setUser(user);
+        payment.setOrder(order);
+        paymentRepository.save(payment);
+        return new BaseResponse(true, "Checkout successfully");
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.hcmute.bookstoreapplication.controllers;
 
 import com.hcmute.bookstoreapplication.dtos.CartDTO;
 import com.hcmute.bookstoreapplication.dtos.CheckoutDTO;
+import com.hcmute.bookstoreapplication.dtos.request.CheckoutRequestBuyNowDTO;
 import com.hcmute.bookstoreapplication.dtos.request.CheckoutRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.request.ItemRequestDTO;
 import com.hcmute.bookstoreapplication.dtos.response.BaseResponse;
@@ -30,6 +31,16 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCheckoutInfo(id));
     }
 
+    @PostMapping("/buy-now")
+    public ResponseEntity<BaseResponse> buyNow(@RequestBody CheckoutRequestBuyNowDTO checkoutRequestBuyNowDTO){
+        try{
+            return ResponseEntity.ok(cartService.buyNow(checkoutRequestBuyNowDTO));
+        }catch (RuntimeException e){
+            return ResponseEntity.
+                    status(HttpStatus.INTERNAL_SERVER_ERROR).
+                    body(new BaseResponse(false, e.getMessage()));
+        }
+    }
     @PostMapping("/checkout")
     public ResponseEntity<BaseResponse> checkout(@RequestBody CheckoutRequestDTO checkoutRequestDTO){
         try {
