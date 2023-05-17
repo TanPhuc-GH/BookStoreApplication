@@ -22,15 +22,15 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     @Autowired
     private JavaMailSender mailSender;
-//    public void sendEmail(String toEmail, String subject, String body){
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setFrom("baovan301@gmail.com");
-//        message.setTo(toEmail);
-//        message.setText(body);
-//        message.setSubject(subject);
-//        mailSender.send(message);
-//        System.out.println("Mail sent successfully....");
-//    }
+    public void sendEmail(String toEmail, String subject, String body){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("baovan301@gmail.com");
+        message.setTo(toEmail);
+        message.setText(body);
+        message.setSubject(subject);
+        mailSender.send(message);
+        System.out.println("Mail sent successfully....");
+    }
     @Override
     public User createUser(UserDTO userDTO) {
         int OTP = 5;
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService{
         user.setRoles(EnumRole.USER);
         user.setIsActive(false);
         user.setVerificationCode(generator.generate(OTP));
-//        sendEmail(userDTO.getEmail(),"OTP CODE FOR REGISTER","Here is your OTP Code: " + user.getVerificationCode());
+        sendEmail(userDTO.getEmail(),"OTP CODE FOR REGISTER","Here is your OTP Code: " + user.getVerificationCode());
         return userRepository.save(user);
     }
 
@@ -132,6 +132,7 @@ public class UserServiceImpl implements UserService{
                 response.setEmail(user.getEmail());
                 response.setStatus("Đã gởi mã OTP về cho gmail");
                 user.setVerificationCode(generator.generate(OTP));
+                sendEmail(user.getEmail(),"OTP CODE FOR RESET PASSWORD","Here is your OTP Code: " + user.getVerificationCode());
                 userRepository.save(user);
                 break;
             }
