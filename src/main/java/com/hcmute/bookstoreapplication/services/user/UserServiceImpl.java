@@ -2,19 +2,18 @@ package com.hcmute.bookstoreapplication.services.user;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
 import com.hcmute.bookstoreapplication.dtos.UserInfoDTO;
-import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
-import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
+import com.hcmute.bookstoreapplication.dtos.response.*;
 import com.hcmute.bookstoreapplication.entities.User;
+import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
 import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import com.hcmute.bookstoreapplication.utils.EnumRole;
 import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -172,7 +171,7 @@ public class UserServiceImpl implements UserService{
     public UserDTO getUser(Integer id) {
         Optional<User> user = userRepository.findById(id);
         if(!user.isPresent()){
-            throw new RuntimeException("Product not found with id: "+id);
+            throw new RuntimeException("User with id %d not found"+id);
         }
         UserDTO userDTO = new UserDTO(user.get());
         return userDTO;
@@ -182,9 +181,38 @@ public class UserServiceImpl implements UserService{
     public List<UserInfoDTO> getAllUser() {
         List<User> users = userRepository.findAll();
         List<UserInfoDTO> userList = users.stream()
-                .filter(user -> user.getRoles() != EnumRole.ADMIN)
-                .map(User)
+                .filter(user -> user.getRoles() != EnumRole.ADMIN && user.getIsActive())
+                .map(UserInfoDTO::new)
                 .collect(Collectors.toList());
-        return null;
+        return userList;
+    }
+
+    @Override
+    @Transactional
+    public BaseResponse updateUser(UserInfoDTO userInfoDTO) {
+        User user = userRepository.findById(userInfoDTO.getId()).orElseThrow(()->
+                new NotFoundException(String.format("User with id %d not found", userInfoDTO.getId())));
+        if(!user.getEmail().equalsIgnoreCase(userInfoDTO.getEmail().trim())
+                && userRepository.existsByEmail(userInfoDTO.getEmail().trim())){
+            throw new RuntimeException(String.format("Email %s existed", userInfoDTO.getEmail()));
+        }
+        user.setFirstName(userInfoDTO.getFirstName());
+        user.setLastName(userInfoDTO.getLastName());
+        user.setEmail(userInfoDTO.getEmail());
+        user.setPassword(user.getPassword());
+        user.setPhoneNumber(userInfoDTO.getPhoneNumber());
+        user.setDefaultAddress(userInfoDTO.getAddress());
+
+        userRepository.save(user);
+        return new BaseResponse(true,"Update successful");
+    }
+
+    @Override
+    public BaseResponse deleteUser(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(()->
+                new NotFoundException(String.format("User with id %d not found", id)));
+        user.setIsActive(false);
+        userRepository.save(user);
+        return new BaseResponse(true, "Delete successful");
     }
 }

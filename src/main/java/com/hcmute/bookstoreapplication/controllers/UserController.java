@@ -2,10 +2,7 @@ package com.hcmute.bookstoreapplication.controllers;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
 import com.hcmute.bookstoreapplication.dtos.UserInfoDTO;
-import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
-import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
+import com.hcmute.bookstoreapplication.dtos.response.*;
 import com.hcmute.bookstoreapplication.entities.User;
 import com.hcmute.bookstoreapplication.services.user.UserService;
 import org.springframework.http.HttpStatus;
@@ -25,6 +22,26 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<BaseResponse> deleteUser(@PathVariable Integer id){
+        try{
+            return ResponseEntity.ok(userService.deleteUser(id));
+        }catch (RuntimeException e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse(false,e.getMessage()));
+        }
+    }
+    @PutMapping("/update")
+    public ResponseEntity<BaseResponse> updateUser(@RequestBody UserInfoDTO userInfoDTO){
+        try{
+            return ResponseEntity.ok(userService.updateUser(userInfoDTO));
+        }catch (RuntimeException e){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BaseResponse(false, e.getMessage()));
+        }
+    }
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody UserDTO userDTO){
         return new ResponseEntity<>(userService.createUser(userDTO), HttpStatus.OK);
