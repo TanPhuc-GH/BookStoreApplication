@@ -1,11 +1,14 @@
 package com.hcmute.bookstoreapplication.services.user;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
+import com.hcmute.bookstoreapplication.dtos.UserInfoDTO;
 import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
 import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
 import com.hcmute.bookstoreapplication.entities.User;
+
+import java.util.List;
 
 public interface UserService {
     User createUser(UserDTO userDTO);
@@ -14,4 +17,6 @@ public interface UserService {
     UserForgetPasswordResponse forgetPassword(UserForgetPasswordResponse userForgetPasswordResponse);
     UserResetPasswordResponse resetPassword(UserResetPasswordResponse userResetPasswordResponse);
     UserDTO getUser(Integer id);
+
+    List<UserInfoDTO> getAllUser();
 }

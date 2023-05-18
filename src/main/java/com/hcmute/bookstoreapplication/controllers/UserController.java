@@ -1,6 +1,7 @@
 package com.hcmute.bookstoreapplication.controllers;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
+import com.hcmute.bookstoreapplication.dtos.UserInfoDTO;
 import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -47,10 +49,10 @@ public class UserController {
         UserResetPasswordResponse response = userService.resetPassword(userResetPasswordResponse);
         return ResponseEntity.ok(response);
     }
-//   @GetMapping("/{userId}")
-//   public ResponseEntity<UserDTO> getUser(@PathVariable Integer userId){
-//       return new ResponseEntity<>(user)
-//   }
+   @GetMapping("/all")
+   public ResponseEntity<List<UserInfoDTO>> getAllUser(){
+       return new ResponseEntity<>(userService.getAllUser(),HttpStatus.OK);
+   }
 
    @GetMapping("/{userId}")
    public ResponseEntity<UserDTO> getUser(@PathVariable Integer userId){

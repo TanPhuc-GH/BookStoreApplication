@@ -29,8 +29,6 @@ import java.util.Random;
 @Service
 public class ProductServiceImpl implements ProductService{
     @Autowired
-    private EntityManager entityManager;
-    @Autowired
     ProductRepository productRepository;
     @Autowired
     CloudinaryService cloudinaryService;

@@ -1,6 +1,7 @@
 package com.hcmute.bookstoreapplication.services.user;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
+import com.hcmute.bookstoreapplication.dtos.UserInfoDTO;
 import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
 import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
@@ -10,12 +11,14 @@ import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import com.hcmute.bookstoreapplication.utils.EnumRole;
 import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
@@ -172,5 +175,15 @@ public class UserServiceImpl implements UserService{
         }
         UserDTO userDTO = new UserDTO(user.get());
         return userDTO;
+    }
+
+    @Override
+    public List<UserInfoDTO> getAllUser() {
+        List<User> users = userRepository.findAll();
+        List<UserInfoDTO> userList = users.stream()
+                .filter(user -> user.getRoles() != EnumRole.ADMIN)
+                .map(User)
+                .collect(Collectors.toList());
+        return null;
     }
 }
