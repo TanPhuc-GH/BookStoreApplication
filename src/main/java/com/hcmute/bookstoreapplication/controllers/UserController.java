@@ -1,10 +1,7 @@
 package com.hcmute.bookstoreapplication.controllers;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
-import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
-import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
+import com.hcmute.bookstoreapplication.dtos.response.*;
 import com.hcmute.bookstoreapplication.entities.User;
 import com.hcmute.bookstoreapplication.services.user.UserService;
 import org.springframework.http.HttpStatus;
@@ -24,8 +21,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody UserDTO userDTO){
-        return new ResponseEntity<>(userService.createUser(userDTO), HttpStatus.OK);
+    public ResponseEntity<BaseResponse> register(@RequestBody UserDTO userDTO){
+        try{
+            return new ResponseEntity<>(userService.createUser(userDTO), HttpStatus.OK);
+        }catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.OK).body(new BaseResponse(false, e.getMessage()));
+        }
     }
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginResponse userLoginResponse){

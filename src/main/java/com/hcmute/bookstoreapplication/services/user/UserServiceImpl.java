@@ -1,11 +1,10 @@
 package com.hcmute.bookstoreapplication.services.user;
 
 import com.hcmute.bookstoreapplication.dtos.UserDTO;
-import com.hcmute.bookstoreapplication.dtos.response.UserForgetPasswordResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserLoginResponse;
-import com.hcmute.bookstoreapplication.dtos.response.UserRegisterOtpRespone;
-import com.hcmute.bookstoreapplication.dtos.response.UserResetPasswordResponse;
+import com.hcmute.bookstoreapplication.dtos.response.*;
 import com.hcmute.bookstoreapplication.entities.User;
+import com.hcmute.bookstoreapplication.exceptions.InvalidException;
+import com.hcmute.bookstoreapplication.exceptions.NotFoundException;
 import com.hcmute.bookstoreapplication.repositories.UserRepository;
 import com.hcmute.bookstoreapplication.utils.EnumRole;
 import org.apache.commons.text.RandomStringGenerator;
@@ -32,16 +31,15 @@ public class UserServiceImpl implements UserService{
         System.out.println("Mail sent successfully....");
     }
     @Override
-    public User createUser(UserDTO userDTO) {
+    public BaseResponse createUser(UserDTO userDTO) {
         int OTP = 5;
         User user = new User();
         RandomStringGenerator generator = new RandomStringGenerator.Builder().withinRange('0','9').build();
         Optional<User> existingUser = userRepository.findByEmail(userDTO.getEmail());
         if(existingUser.isPresent()){
-            userDTO.setStatus("Tai Khoan đã dnawg ky");
-            return userDTO;
+            throw new InvalidException("Tài khoản đã tồn tại");
         }
-        user.setId(userDTO.getId());
+//        user.setId(userDTO.getId());
         user.setDefaultAddress(userDTO.getAddress());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -51,8 +49,10 @@ public class UserServiceImpl implements UserService{
         user.setRoles(EnumRole.USER);
         user.setIsActive(false);
         user.setVerificationCode(generator.generate(OTP));
+
         sendEmail(userDTO.getEmail(),"OTP CODE FOR REGISTER","Here is your OTP Code: " + user.getVerificationCode());
-        return userRepository.save(user);
+        userRepository.save(user);
+        return new BaseResponse(true,"Đã gởi mã OTP qua email");
     }
 
     @Override

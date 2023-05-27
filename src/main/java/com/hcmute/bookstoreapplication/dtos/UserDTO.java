@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO extends User {
+public class UserDTO {
     private Integer id;
     private String address;
     private String email;
@@ -22,7 +22,6 @@ public class UserDTO extends User {
     private EnumRole role;
     private Boolean isActive;
     private String codeActive;
-    private String status;
     public UserDTO(User user){
         this.setId(user.getId());
         this.setAddress(user.getDefaultAddress());
