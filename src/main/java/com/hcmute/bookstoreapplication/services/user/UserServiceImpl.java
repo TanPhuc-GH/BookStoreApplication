@@ -97,24 +97,37 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserRegisterOtpRespone otp(UserRegisterOtpRespone userRegisterOtpRespone) {
         UserRegisterOtpRespone respone = new UserRegisterOtpRespone();
-        List<User> users = userRepository.findAll();
-        for(User user:users){
-            if(user.getEmail().equals(userRegisterOtpRespone.getEmail())){
-                if(!user.getVerificationCode().equals(userRegisterOtpRespone.getOtpCode())){
-                    respone.setStatus("Sai OTP");
-                    respone.setEmail(user.getEmail());
-                }
-                else{
-                    user.setVerificationCode(null);
-                    user.setIsActive(true);
-                    userRepository.save(user);
-                    respone.setStatus("Tài khoản được kích hoạt");
-                    respone.setEmail(user.getEmail());
-                    respone.setOtp(true);
-                    respone.setOtpCode(user.getVerificationCode());
-                }
-            }
+        Optional<User> user = userRepository.findByEmail(userRegisterOtpRespone.getEmail());
+        if(!user.get().getVerificationCode().equals(userRegisterOtpRespone.getOtpCode())){
+            respone.setStatus("Sai OTP");
+            respone.setEmail(user.get().getEmail());
         }
+        else{
+            user.get().setVerificationCode(null);
+            user.get().setIsActive(true);
+            userRepository.save(user.get());
+            respone.setStatus("Tài khoản được kích hoạt");
+            respone.setEmail(user.get().getEmail());
+            respone.setOtp(true);
+            respone.setOtpCode(user.get().getVerificationCode());
+        }
+//        for(User user:users){
+//            if(user.getEmail().equals(userRegisterOtpRespone.getEmail())){
+//                if(!user.getVerificationCode().equals(userRegisterOtpRespone.getOtpCode())){
+//                    respone.setStatus("Sai OTP");
+//                    respone.setEmail(user.getEmail());
+//                }
+//                else{
+//                    user.setVerificationCode(null);
+//                    user.setIsActive(true);
+//                    userRepository.save(user);
+//                    respone.setStatus("Tài khoản được kích hoạt");
+//                    respone.setEmail(user.getEmail());
+//                    respone.setOtp(true);
+//                    respone.setOtpCode(user.getVerificationCode());
+//                }
+//            }
+//        }
         return respone;
     }
 
