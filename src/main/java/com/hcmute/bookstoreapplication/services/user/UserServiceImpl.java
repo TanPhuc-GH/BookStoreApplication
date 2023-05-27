@@ -58,39 +58,67 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserLoginResponse login(UserLoginResponse userLoginResponse) {
         UserLoginResponse response = new UserLoginResponse();
-        List<User> users = userRepository.findAll();
-        for(User user:users){
-            if(user.getEmail().equals(userLoginResponse.getEmail())){
-                if(user.getIsActive() == false){
+        Optional<User> user = userRepository.findByEmail(userLoginResponse.getEmail());
+        if (!user.isPresent()){
+            response.setStatus("Email này chưa đăng ký");
+            System.out.println(response.getEmail());
+            System.out.println(response.getEmail());
+            System.out.println(response.getPassword());
+            System.out.println(response.getStatus());
+        }
+        else{
+            if(user.get().getIsActive() == false){
                     response.setStatus("Tài khoản chưa được kích hoạt");
                     System.out.println(response.getEmail());
                     System.out.println(response.getPassword());
                     System.out.println(response.getStatus());
-                }
-                else if (!user.getPassword().equals(userLoginResponse.getPassword())) {
-                    response.setStatus("Mật khẩu sai");
-                    System.out.println(response.getEmail());
-                    System.out.println(response.getPassword());
-                    System.out.println(response.getStatus());
-                }
-                else{
-                    response.setEmail(user.getEmail());
-                    response.setPassword(user.getPassword());
-                    response.setId(user.getId());
-                    response.setStatus("Đăng nhập thành công");
-                }
-                break;
+            }
+            else if (!user.get().getPassword().equals(userLoginResponse.getPassword())) {
+                response.setStatus("Mật khẩu sai");
+                System.out.println(response.getEmail());
+                System.out.println(response.getPassword());
+                System.out.println(response.getStatus());
             }
             else{
-                if(!user.getEmail().equals(userLoginResponse.getEmail())){
-                    response.setStatus("Email này chưa đăng ký");
-                    System.out.println(response.getEmail());
-                    System.out.println(response.getEmail());
-                    System.out.println(response.getPassword());
-                    System.out.println(response.getStatus());
-                }
+                response.setEmail(user.get().getEmail());
+                response.setPassword(user.get().getPassword());
+                response.setId(user.get().getId());
+                response.setStatus("Đăng nhập thành công");
             }
         }
+//        List<User> users = userRepository.findAll();
+//        for(User user:users){
+//            if(user.getEmail().equals(userLoginResponse.getEmail())){
+//                if(user.getIsActive() == false){
+//                    response.setStatus("Tài khoản chưa được kích hoạt");
+//                    System.out.println(response.getEmail());
+//                    System.out.println(response.getPassword());
+//                    System.out.println(response.getStatus());
+//                }
+//                else if (!user.getPassword().equals(userLoginResponse.getPassword())) {
+//                    response.setStatus("Mật khẩu sai");
+//                    System.out.println(response.getEmail());
+//                    System.out.println(response.getPassword());
+//                    System.out.println(response.getStatus());
+//                }
+//                else{
+//                    response.setEmail(user.getEmail());
+//                    response.setPassword(user.getPassword());
+//                    response.setId(user.getId());
+//                    response.setStatus("Đăng nhập thành công");
+//                }
+//                break;
+//            }
+//            else{
+//                if(!user.getEmail().equals(userLoginResponse.getEmail())){
+//                    response.setStatus("Email này chưa đăng ký");
+//                    System.out.println(response.getEmail());
+//                    System.out.println(response.getEmail());
+//                    System.out.println(response.getPassword());
+//                    System.out.println(response.getStatus());
+//                }
+//            }
+//        }
         return response;
     }
 
