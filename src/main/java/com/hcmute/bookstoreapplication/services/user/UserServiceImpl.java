@@ -163,46 +163,69 @@ public class UserServiceImpl implements UserService{
     public UserForgetPasswordResponse forgetPassword(UserForgetPasswordResponse userForgetPasswordResponse) {
         int OTP = 5;
         RandomStringGenerator generator = new RandomStringGenerator.Builder().withinRange('0','9').build();
-        List<User> users = userRepository.findAll();
         UserForgetPasswordResponse response = new UserForgetPasswordResponse();
-        for(User user:users){
-            if(!user.getEmail().equals(userForgetPasswordResponse.getEmail())){
-                response.setStatus("Email này chưa được đăng ký");
-            }
-            else {
-                response.setEmail(user.getEmail());
-                response.setStatus("Đã gởi mã OTP về cho gmail");
-                user.setVerificationCode(generator.generate(OTP));
-                sendEmail(user.getEmail(),"OTP CODE FOR RESET PASSWORD","Here is your OTP Code: " + user.getVerificationCode());
-                userRepository.save(user);
-                break;
-            }
+        Optional<User> user = userRepository.findByEmail(userForgetPasswordResponse.getEmail());
+        if(!user.isPresent()){
+            response.setStatus("Email này chưa đăng ký");
         }
+        else{
+            response.setEmail(user.get().getEmail());
+            response.setStatus("Đã gởi mã OTP về cho gmail");
+            user.get().setVerificationCode(generator.generate(OTP));
+            sendEmail(user.get().getEmail(),"OTP CODE FOR RESET PASSWORD","Here is your OTP Code: " + user.get().getVerificationCode());
+            userRepository.save(user.get());
+        }
+//        List<User> users = userRepository.findAll();
+//        for(User user:users){
+//            if(!user.getEmail().equals(userForgetPasswordResponse.getEmail())){
+//                response.setStatus("Email này chưa được đăng ký");
+//            }
+//            else {
+//                response.setEmail(user.getEmail());
+//                response.setStatus("Đã gởi mã OTP về cho gmail");
+//                user.setVerificationCode(generator.generate(OTP));
+//                sendEmail(user.getEmail(),"OTP CODE FOR RESET PASSWORD","Here is your OTP Code: " + user.getVerificationCode());
+//                userRepository.save(user);
+//                break;
+//            }
+//        }
         return response;
     }
 
     @Override
     public UserResetPasswordResponse resetPassword(UserResetPasswordResponse userResetPasswordResponse) {
-        List<User> users = userRepository.findAll();
+//        List<User> users = userRepository.findAll();
+        Optional<User> user = userRepository.findByEmail(userResetPasswordResponse.getEmail());
         UserResetPasswordResponse response = new UserResetPasswordResponse();
-        for(User user:users){
-            if(user.getEmail().equals(userResetPasswordResponse.getEmail())){
-                if(user.getVerificationCode().equals(userResetPasswordResponse.getOtpCode())){
-                    response.setStatus("Đổi mật khẩu thành công");
-                    response.setOtpCode(user.getVerificationCode());
-                    response.setEmail(user.getEmail());
-                    response.setNewPassword(userResetPasswordResponse.getNewPassword());
-                    user.setVerificationCode(null);
-                    user.setPassword(userResetPasswordResponse.getNewPassword());
-                    userRepository.save(user);
-                }
-                else{
-                    response.setStatus("Mã OTP Sai");
-                }
-                break;
-            }
-
+        if(user.get().getVerificationCode().equals(userResetPasswordResponse.getOtpCode())){
+            response.setStatus("Đổi mật khẩu thành công");
+            response.setOtpCode(user.get().getVerificationCode());
+            response.setEmail(user.get().getEmail());
+            response.setNewPassword(userResetPasswordResponse.getNewPassword());
+            user.get().setVerificationCode(null);
+            user.get().setPassword(userResetPasswordResponse.getNewPassword());
+            userRepository.save(user.get());
+        }else{
+            response.setStatus("Mã OTP Sai");
         }
+//        for(User user:users){
+//            if(user.getEmail().equals(userResetPasswordResponse.getEmail())){
+//                if(user.getVerificationCode().equals(userResetPasswordResponse.getOtpCode())){
+//                    response.setStatus("Đổi mật khẩu thành công");
+//                    response.setOtpCode(user.getVerificationCode());
+//                    response.setEmail(user.getEmail());
+//                    response.setNewPassword(userResetPasswordResponse.getNewPassword());
+//                    user.setVerificationCode(null);
+//                    user.setPassword(userResetPasswordResponse.getNewPassword());
+//                    userRepository.save(user);
+//                }
+//                else{
+//                    response.setStatus("Mã OTP Sai");
+//                }
+//                break;
+//            }
+//
+//        }
         return response;
     }
 
